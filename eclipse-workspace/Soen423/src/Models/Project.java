@@ -1,6 +1,8 @@
 package Models;
 
-public class Project {
+import java.io.Serializable;
+
+public class Project implements Serializable{
 	String projectId;
 	String clientName;
 	String projectName;
@@ -25,7 +27,7 @@ public class Project {
 	public String getProjectName() {
 		return projectName;
 	}
-	public void setProject(String id) {
+	public void setProjectId(String id) {
 		projectId = id;
 	}
 	public void setClientName(String cName) {
