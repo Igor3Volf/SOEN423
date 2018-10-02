@@ -13,21 +13,21 @@ public class LogWriter
 	private BufferedWriter bufferWriter;
 	private PrintWriter in;	
 	private String fileName;
-	private final static String PATH = "C:\\Users\\Igor3Volf\\git\\SOEN423\\eclipse-workspace\\Soen423\\";
+	private String path = "";
 	
 	
-	public LogWriter(String fileName) throws IOException
+	public LogWriter(String fileName, String path) throws IOException
 	{		
 		this.fileName=fileName;
-		
-		fileWriter = new FileWriter(new File(PATH,fileName),true);
+		this.path= path;
+		fileWriter = new FileWriter(new File(path,fileName),true);
 		bufferWriter = new BufferedWriter(fileWriter);
 		in = new PrintWriter(bufferWriter);
 	}
 	 public  void writeLog(String mId, String task)
 	 {		 	
 		 try {
-			 fileWriter = new FileWriter(new File(PATH,fileName),true);
+			 fileWriter = new FileWriter(new File(path,fileName),true);
 			 bufferWriter = new BufferedWriter(fileWriter);
 			 in = new PrintWriter(bufferWriter);		
 			 LocalDateTime d = LocalDateTime.now();		 

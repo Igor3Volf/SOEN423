@@ -1,6 +1,7 @@
 package Client;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
@@ -10,24 +11,28 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 
 import Models.Project;
+import Repository.LogWriter;
 import Servers.ServerInterface;
 
 
 public class ManagerClientSide{
 
-	public static ServerInterface serverO;
-	
+	private static ServerInterface serverO;
+	private static LogWriter log;
+	private final static String PATH = "C:\\Users\\Igor3Volf\\git\\SOEN423\\eclipse-workspace\\Soen423\\Client_logs\\";
 	public static void main(String[] args)throws Exception 
 	{
+		 
 		// TODO Auto-generated method stub		 
 		 Scanner keyboard = new Scanner(System.in);
-		 login(keyboard);	 		 
+		 login(keyboard);
 	}
 	
-	private static void login(Scanner keyboard) 
+	private static void login(Scanner keyboard) throws IOException 
 	{
-		 System.out.print("Hello User, Please enter your ID: (type 'exit' to stop)");			 
+		 System.out.println("Hello User, Please enter your ID: ");			 
 		 String input = keyboard.next();
+		 log = new LogWriter(input+"_logs.txt",PATH);
 		 String location = input.substring(0, 2); 
 		 try {
 			connectToServer(location);
@@ -39,6 +44,7 @@ public class ManagerClientSide{
 		
 	}
 	private static void options(Scanner keyboard, String userName) {
+		 System.out.println();
 		 System.out.println("Chose one from following : (1,2,3,4)");
 		 System.out.println("1. Create Manager Record.");
 		 System.out.println("2. Create Employee Record.");
@@ -63,6 +69,7 @@ public class ManagerClientSide{
 		 Project p = new Project();
 		 String firstName, lastName, managerId, mailId, location;
 		 
+		 System.out.println();
 		 System.out.println("Enter First Name");
 		 firstName = k.next();
 		 
@@ -90,10 +97,13 @@ public class ManagerClientSide{
 		 try {
 			String message = serverO.createMRecord(firstName, lastName, managerId, mailId, p, location);
 			serverO.printData(userName, message);
+			log.writeLog(userName, message);
+			
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	 
+		 options(k,userName);
 
 	}
 	private static void option2 (Scanner k, String userName){
@@ -105,7 +115,7 @@ public class ManagerClientSide{
 		 System.out.println("Enter Last Name");
 		 lastName = k.next();
 
-		 System.out.println("Enter Manager ID");
+		 System.out.println("Enter Employee ID");
 		 employeeId = k.next();
 
 		 System.out.println("Enter Mail ID");
@@ -117,19 +127,42 @@ public class ManagerClientSide{
 		 try {
 			String message = serverO.createERecord(firstName, lastName, Integer.parseInt(employeeId), mailId, projectId);
 			serverO.printData(userName, message);
+			log.writeLog(userName, message);
 		 } catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-			
+		
+		 options(k,userName);
+
 		}
 	private static void option3 (Scanner k, String userName){
 		
 		
 	}
 	private static void option4 (Scanner k, String userName){
-		
-		
+		 String recordId, fieldName, newValue;
+		 
+		 System.out.println();
+		 System.out.println("Enter Record ID");
+		 recordId = k.next();
+		 
+		 System.out.println("Enter Field Name(mailId, location, projectId, projectName, clientName)");
+		 fieldName = k.next();
+
+		 System.out.println("Enter New Value");
+		 newValue = k.next();
+		 
+		 try {
+			String message =serverO.editRecord(recordId, fieldName, newValue);
+			serverO.printData(userName, message);
+			log.writeLog(userName, message);
+			
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		options(k,userName);
 	}
 	
 	 private static void connectToServer(String location) throws RemoteException 

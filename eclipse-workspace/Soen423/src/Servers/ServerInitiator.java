@@ -18,24 +18,25 @@ import java.io.*;
  */
 
 public class ServerInitiator  {
-	
+	private final static String PATH= "C:\\Users\\Igor3Volf\\git\\SOEN423\\eclipse-workspace\\Soen423\\Server_logs\\";
    public static void main(String args[]) throws AlreadyBoundException, IOException {    
-	   	String loc="";
 	try {					
 		Registry register = LocateRegistry.createRegistry(1099);	
 		
-		CenterServer csCA = new CenterServer("Canadian");
+		CenterServer csCA = new CenterServer("Canadian",PATH );
 		register.bind("localhost/CA", csCA);
 		System.out.println("CA Server is started!");
 		
-		CenterServer csUS = new CenterServer("American");
+		CenterServer csUS = new CenterServer("American",PATH);
 		register.bind("localhost/US", csUS);		
 		System.out.println("US Server is started!");
 
-		CenterServer csUK = new CenterServer("English");
+		CenterServer csUK = new CenterServer("English",PATH);
 		register.bind("localhost/UK", csUK);
 		System.out.println("UK Server is started!");
 		
+		 
+			
 		preset(csCA,csUS,csUK);
 		
 	} catch (RemoteException e) {

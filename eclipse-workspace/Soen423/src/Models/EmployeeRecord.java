@@ -29,6 +29,14 @@ public class EmployeeRecord extends Record implements Serializable{
 	public void setEmployeeId(int employeeId) {
 		this.employeeId = employeeId;
 	}
-	
+	public String assign(String field, String newVal)
+	{
+			switch(field) {
+			case "mailId": setMailId(newVal); return "The mail id was edited";
+			case "projectId": setProjectId(newVal); return "The project id was edited";
+			default : return "This is illigal operation."; 
+
+			}	
+	}	
 			
 }
