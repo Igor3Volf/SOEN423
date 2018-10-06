@@ -30,11 +30,10 @@ public class Record implements Serializable{
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.mailId = mailId;
-		recordId=id + String.valueOf(count++);
+		recordId=id;
 	}
 	private String firstName;
 	private String lastName;
 	private String mailId;
 	private String recordId;
-	private static int count = 0;
 }

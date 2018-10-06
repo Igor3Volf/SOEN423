@@ -15,8 +15,7 @@ public class CenterServer extends UnicastRemoteObject implements ServerInterface
 {	
 	private HashMapper map;
 	private LogWriter logs;
-	private String task;
-	
+	private int count=0;
 	public CenterServer(String location, String path)throws RemoteException, IOException {
 		String fileName = location+"_logs.txt";
 		map = new HashMapper();	
@@ -25,8 +24,8 @@ public class CenterServer extends UnicastRemoteObject implements ServerInterface
 	}
 	@Override
 	public synchronized String createMRecord(String firstName, String lastName, String employeeID, String mailID, Project project, String location) throws RemoteException {
-		task = "Create Manager Record";
-		String recordId="MR";		
+		count++;
+		String recordId="MR"+String.valueOf(count);
 		ManagerRecord managerRec = new ManagerRecord(firstName, lastName, employeeID, mailID, recordId, location, project);
 		map.put(lastName, managerRec);		
 		return "The Manager Record is successfully added!";		
@@ -34,7 +33,8 @@ public class CenterServer extends UnicastRemoteObject implements ServerInterface
 
 	@Override
 	public synchronized String createERecord(String firstName, String lastName, int employeeID, String mailID, String projectId)throws RemoteException {
-		String recordId="ER";		
+		count++;
+		String recordId="ER"+String.valueOf(count);
 		EmployeeRecord empRec = new EmployeeRecord(firstName, lastName, employeeID, mailID, recordId, projectId);
 		map.put(lastName, empRec);		
 		return "The Employee Recored is successfully added!";
@@ -43,7 +43,6 @@ public class CenterServer extends UnicastRemoteObject implements ServerInterface
 	@Override
 	public synchronized String getRecordCounts()throws RemoteException {
 		// TODO Auto-generated method stub
-		
 		return String.valueOf(map.getCount());
 	}
 

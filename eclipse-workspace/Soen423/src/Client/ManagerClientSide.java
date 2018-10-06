@@ -16,7 +16,18 @@ import Servers.ServerInterface;
 
 
 public class ManagerClientSide{
-
+	
+	/* VALIDATION MUST BE DONE*/
+	/* VALIDATION MUST BE DONE*/
+	/* VALIDATION MUST BE DONE*/
+	/* VALIDATION MUST BE DONE*/
+	/* VALIDATION MUST BE DONE*/
+	/* VALIDATION MUST BE DONE*/
+	/* VALIDATION MUST BE DONE*/
+	/* VALIDATION MUST BE DONE*/
+	/* VALIDATION MUST BE DONE*/
+	/* VALIDATION MUST BE DONE*/
+	
 	private static ServerInterface serverO;
 	private static LogWriter log;
 	private final static String PATH = "C:\\Users\\Igor3Volf\\git\\SOEN423\\eclipse-workspace\\Soen423\\Client_logs\\";
