@@ -35,5 +35,5 @@ public class Record implements Serializable{
 	private String firstName;
 	private String lastName;
 	private String mailId;
-	private String recordId;
+	private static String recordId;
 }
