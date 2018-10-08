@@ -8,7 +8,7 @@ import Models.EmployeeRecord;
 import Models.ManagerRecord;
 
 public class HashMapper {
-	HashMap<Character, ArrayList<Object>> mapper;
+	private HashMap<Character, ArrayList<Object>> mapper;
 
 	public HashMapper() {
 		mapper = new HashMap<Character, ArrayList<Object>>();
@@ -49,32 +49,45 @@ public class HashMapper {
 	}
 
 	public String edit(String recordId, String fieldName, String newValue) {
+		printAll();
 		for (Character key : mapper.keySet()) {
 			for (int i = 0; i < mapper.get(key).size(); i++) {
-
+				
 				if (mapper.get(key).get(i) instanceof ManagerRecord) {
 					ManagerRecord record = (ManagerRecord) mapper.get(key).get(i);
-
+					
 					if (record.getRecordId().equals(recordId)) {
 						return record.assign(fieldName, newValue);
-					} else {
-						return "This record does not exist.";
 					}
 
 				} else if (mapper.get(key).get(i) instanceof EmployeeRecord) {
 					EmployeeRecord record = (EmployeeRecord) mapper.get(key).get(i);
+
 					if (record.getRecordId().equals(recordId)) {
 						return record.assign(fieldName, newValue);
 
-					} else {
-						return "This record does not exist.";
-					}
+					} 
+				} 
+			}
+		}
+		return "This Record does not Exists!";
+	}
+	public void printAll() {
 
-				} else {
-					return "Invalid Input.";
+		for (Character key : mapper.keySet()) {
+			for (int i = 0; i < mapper.get(key).size(); i++) 
+			{
+				if (mapper.get(key).get(i) instanceof ManagerRecord) 
+				{
+					ManagerRecord record = (ManagerRecord) mapper.get(key).get(i);
+					System.out.println(record.getRecordId()+" "+record.getFirstName()+" "+record.getLastName()+" "+record.getMailId()+" "
+					+record.getLocation()+" "+record.getManagerId());
+				}else {
+					EmployeeRecord record = (EmployeeRecord) mapper.get(key).get(i);
+					System.out.println(record.getRecordId()+" "+record.getFirstName()+" "+record.getLastName()+" "+record.getMailId()+" "
+					+record.getProjectId()+" "+record.getEmployeeId());
 				}
 			}
 		}
-		return "Something";
 	}
 }

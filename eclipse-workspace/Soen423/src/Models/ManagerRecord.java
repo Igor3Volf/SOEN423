@@ -12,7 +12,6 @@ public class ManagerRecord extends Record implements Serializable {
 
 	public ManagerRecord(String firstName, String lastName, String employeeId, String mailId, String recordId) {
 		super(firstName, lastName, mailId, recordId);
-		// TODO Auto-generated constructor stub
 	}
 
 	public ManagerRecord(String firstName, String lastName, String managerId, String mailId, String recordId,

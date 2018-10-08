@@ -8,7 +8,6 @@ public class EmployeeRecord extends Record implements Serializable {
 
 	public EmployeeRecord(String firstName, String lastName, String mailId, String recordId) {
 		super(firstName, lastName, mailId, recordId);
-		// TODO Auto-generated constructor stub
 	}
 
 	public EmployeeRecord(String firstName, String lastName, int employeeId, String mailId, String recordId,

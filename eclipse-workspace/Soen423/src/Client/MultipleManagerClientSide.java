@@ -12,7 +12,6 @@ import Servers.ServerInterface;
 public class MultipleManagerClientSide{
 
 	public static void main(String[] args) throws InterruptedException, IOException {
-		// TODO Auto-generated method stub
 		
 		(new ThreadManager("CA1111","CA")).start();
 		(new ThreadManager("CA1112","CA")).start();
@@ -36,11 +35,13 @@ public class MultipleManagerClientSide{
 		Thread.sleep(5000);
 		try {
 			(new ThreadManager("CA8888","CA")).getCountFinal();
+			(new ThreadManager("US8888","US")).getCountFinal();
+			(new ThreadManager("UK8888","UK")).getCountFinal();
+
+
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
+		}		
 		
 	}
 
@@ -96,6 +97,12 @@ class ThreadManager extends Thread implements Runnable  {
 		serverO.printData(userName, message);
 		print(userName, message);
 	}
+	
+
+	public void printAll() throws IOException {
+		serverO.editRecord("", "", "");
+	}
+	
 	
 	private  static void connectToServer(String location) throws RemoteException {
 		

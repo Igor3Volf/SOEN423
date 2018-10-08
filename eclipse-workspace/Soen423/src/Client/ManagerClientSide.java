@@ -16,26 +16,14 @@ import Servers.ServerInterface;
 
 public class ManagerClientSide {
 
-	/* VALIDATION MUST BE DONE */
-	/* VALIDATION MUST BE DONE */
-	/* VALIDATION MUST BE DONE */
-	/* VALIDATION MUST BE DONE */
-	/* VALIDATION MUST BE DONE */
-	/* VALIDATION MUST BE DONE */
-	/* VALIDATION MUST BE DONE */
-	/* VALIDATION MUST BE DONE */
-	/* VALIDATION MUST BE DONE */
-	/* VALIDATION MUST BE DONE */
-
 	private static ServerInterface serverO;
 	private static LogWriter log;
-	private final static String PATH = "C:\\Users\\Igor3Volf\\git\\SOEN423\\eclipse-workspace\\Soen423\\Client_logs\\";
-	//private final static String PATH = "C:\\Users\\igor3\\eclipse-workspace\\Soen423\\src\\Server_logs\\";
+	private final static String PATH = "C:\\Users\\Igor3Volf\\git\\SOEN423\\eclipse-workspace\\Soen423\\Client_logs\\";		//descktop
+	//private final static String PATH = "C:\\Users\\igor3\\eclipse-workspace\\Soen423\\src\\Client_logs\\"; 				//laptop
 
 
 	public static void main(String[] args) throws Exception {
 
-		// TODO Auto-generated method stub
 		Scanner keyboard = new Scanner(System.in);
 		login(keyboard);
 	}
@@ -49,7 +37,6 @@ public class ManagerClientSide {
 			try {
 				connectToServer(location);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			options(keyboard, input);
@@ -161,7 +148,6 @@ public class ManagerClientSide {
 			log.writeLog(userName, message);
 
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		options(k, userName);
@@ -202,7 +188,6 @@ public class ManagerClientSide {
 			serverO.printData(userName, message);
 			log.writeLog(userName, message);
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -216,7 +201,6 @@ public class ManagerClientSide {
 		try {
 			message = serverO.getRecordCounts();
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			message = "Error: Could not get record count";
 			e.printStackTrace();
 		}
@@ -227,20 +211,26 @@ public class ManagerClientSide {
 	private static void option4(Scanner k, String userName) {
 		String recordId, fieldName, newValue;
 		System.out.println();
-		System.out.println("Enter Record ID");
+		System.out.println("Enter Record ID: [MR|ER]#####");
 		recordId = k.next();
 		if(!validRecordId(recordId)) {
 			option4(k, userName);
 		}
-		System.out.println("Enter Field Name(mailId, location, projectId, projectName, clientName)");
+		System.out.println("Enter Field Name(mailId, location, projectId, projectName, clientName):");
 		fieldName = k.next();
-		if(!validFieldName(fieldName)) {
+		if(isEmpty(fieldName)) {
 			option4(k, userName);
 		}
-		System.out.println("Enter New Value");
+		System.out.println("Enter New Value:");
 		newValue = k.next();
 		if(isEmpty(newValue)) {
 			option4(k, userName);
+		}
+		if(fieldName.equals("location"))
+		{
+			if(!allowedLocation(userName,newValue)) {
+				option4(k,userName);
+			}
 		}
 		try {
 			String message = serverO.editRecord(recordId, fieldName, newValue);
@@ -283,13 +273,7 @@ public class ManagerClientSide {
 		
 		else 
 			return false;
-	}
-	private static boolean validFieldName(String in) {
-		if(in.matches("(^mailId$)|(^location$)|(^projectId$)|(^projectName$)|(^clientName$)")) 
-			return true;		
-		else 
-			return false;
-	}
+	}	
 	private static boolean hasNum(String in) {
 		if(in.matches(".*\\d+.*")) 
 			return true;
@@ -318,7 +302,7 @@ public class ManagerClientSide {
 			return false;
 	}
 	private static boolean validRecordId(String in) {
-		if(in.matches("(^MR(\\d{5})$)|(^ER(\\d{5})$)")) 
+		if(in.matches("(^MR([1-9]\\d{4})$)|(^ER([1-9]\\d{4})$)")) 
 			return true;
 		
 		else 

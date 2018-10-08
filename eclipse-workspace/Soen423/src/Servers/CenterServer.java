@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class CenterServer extends UnicastRemoteObject implements ServerInterface {
 	private HashMapper map;
 	private LogWriter logs;
-	private static int count;
+	private static int count=10000;
 	private String location;
 
 	public CenterServer(String location, String path) throws RemoteException, IOException {
@@ -89,7 +89,6 @@ public class CenterServer extends UnicastRemoteObject implements ServerInterface
 	 * 2003 = UDP UK
 	 */
 	public String getRecordCounts() throws RemoteException {
-		// TODO Auto-generated method stub\
 		String caCount = "", usCount = "", ukCount = "";		
 		
 		if (location.equals("Canadian")) {
@@ -120,10 +119,8 @@ public class CenterServer extends UnicastRemoteObject implements ServerInterface
 				clientSocket.close();
 
 			} catch (SocketException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} else if (location.equals("American")) {
@@ -154,10 +151,8 @@ public class CenterServer extends UnicastRemoteObject implements ServerInterface
 				clientSocket.close();
 
 			} catch (SocketException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -188,10 +183,8 @@ public class CenterServer extends UnicastRemoteObject implements ServerInterface
 				clientSocket.close();
 
 			} catch (SocketException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 

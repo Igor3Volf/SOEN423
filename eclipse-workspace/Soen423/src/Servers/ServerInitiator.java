@@ -21,10 +21,9 @@ import java.io.*;
  */
 
 public class ServerInitiator {
-	private final static String PATH = "C:\\Users\\Igor3Volf\\git\\SOEN423\\eclipse-workspace\\Soen423\\Server_logs\\";
+	private final static String PATH = "C:\\Users\\Igor3Volf\\git\\SOEN423\\eclipse-workspace\\Soen423\\Server_logs\\";		//desktop
+	//private final static String PATH = "C:\\Users\\igor3\\eclipse-workspace\\Soen423\\src\\Server_logs\\"; 				//laptop
 
-	// private final static String PATH=
-	// "C:\\Users\\igor3\\eclipse-workspace\\Soen423\\src\\Server_logs\\";
 	public static void main(String args[]) throws Exception {
 		try {
 			Registry register = LocateRegistry.createRegistry(1099);
@@ -46,14 +45,12 @@ public class ServerInitiator {
 				new Thread(new UDP_US(2002)).start();
 				new Thread(new UDP_UK(2003)).start();
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			
 			preset(csCA, csUS, csUK);
 			System.out.print("");
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -66,16 +63,16 @@ public class ServerInitiator {
 		Project p4CA = new Project("P0004", "Bombardier Inc.", "Supplier Web Modification");
 		String message;
 
-		message = ca.createMRecord("Vanessa", "Duke", "CA0001", "v.duk@gmail.com", p1CA, "CA");
+		message = ca.createMRecord("Vanessa", "Luke", "CA0001", "v.duk@gmail.com", p1CA, "CA");
 		ca.printData("System Preset", message);
 
-		message = ca.createMRecord("Trent", "Turner", "CA0001", "t.tur@gmail.com", p2CA, "CA");
+		message = ca.createMRecord("Trent", "Turner", "CA0002", "t.tur@gmail.com", p2CA, "CA");
 		ca.printData("System Preset", message);
 
-		message = ca.createMRecord("Luka", "Callahan", "CA0001", "l.cal@gmail.com", p3CA, "CA");
+		message = ca.createMRecord("Luka", "Callahan", "CA0003", "l.cal@gmail.com", p3CA, "CA");
 		ca.printData("System Preset", message);
 
-		message = ca.createMRecord("Carmen", "Valentine", "CA0001", "c.val@yahoo.com", p4CA, "CA");
+		message = ca.createMRecord("Carmen", "Lalentine", "CA0004", "c.val@yahoo.com", p4CA, "CA");
 		ca.printData("System Preset", message);
 
 		message = ca.createERecord("Maliyah", "Garza", 1, "m.gar@gmail.com", "P00001");
@@ -139,21 +136,18 @@ public class ServerInitiator {
 		message = uk.createERecord("Avery", "Castro", 9, "a.cas@gmail.com", "P00009");
 		uk.printData("System Preset", message);
 
-		message = uk.createERecord("Maxim", "House", 10, "m.hou@gmail.com", "P000010");
+		message = uk.createERecord("Maxim", "House", 10, "m.hou@gmail.com", "P00010");
 		uk.printData("System Preset", message);
 
-		message = uk.createERecord("Rory", "Vang", 11, "r.yang@gmail.com", "P000011");
+		message = uk.createERecord("Rory", "Vang", 11, "r.yang@gmail.com", "P00011");
 		uk.printData("System Preset", message);
 
-		message = uk.createERecord("Reese", "Marquez", 12, "r.mar@hotmail.com", "P000012");
+		message = uk.createERecord("Reese", "Marquez", 12, "r.mar@hotmail.com", "P00012");
 		uk.printData("System Preset", message);
 		
 		message =  ca.getRecordCounts();
 		ca.printData("COUNT TEST", message);	
-
-		
-		
 		
 
 	}
-} // end class
+} 
