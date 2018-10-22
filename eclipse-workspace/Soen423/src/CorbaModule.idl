@@ -1,0 +1,21 @@
+module CorbaModule
+{
+    struct Project{
+        string projectId;
+        string clientName;
+        string projectName;
+      };
+    interface ManagerInterface {
+        string createMRecord(in string managerID, in string firstName,in string lastName,in string employeeID,in string mailID,in Project project,in string location);
+
+        string createERecord(in string managerID,in string firstName,in string lastName,in short employeeID,in string mailID,in string projectId);
+
+        string getRecordCounts(in string managerID);
+
+        string editRecord(in string managerID,in string recordID,in string fieldName,in string newValue);
+
+        void printData(in string managerID,in string init,in string serverLocation,in boolean isSuccess,in string task);
+        
+        string getMapCount();
+    };
+};
