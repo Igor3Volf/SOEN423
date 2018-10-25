@@ -14,8 +14,6 @@ module CorbaModule
 
         string editRecord(in string managerID,in string recordID,in string fieldName,in string newValue);
 
-        void printData(in string managerID,in string init,in string serverLocation,in boolean isSuccess,in string task);
-        
-        string getMapCount();
+        string transferRecord(in string managerID, in string recordID, in string remoteCenterServerName);        
     };
 };

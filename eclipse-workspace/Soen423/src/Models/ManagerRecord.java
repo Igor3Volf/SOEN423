@@ -14,13 +14,13 @@ public class ManagerRecord extends Record implements Serializable {
 		super(firstName, lastName, mailId, recordId);
 	}
 
-	public ManagerRecord(String firstName, String lastName, String managerId, String mailId, String recordId,
-			String location, Project project) {
+	public ManagerRecord(String firstName, String lastName, String managerId, String mailId, String recordId, String location, Project project) {
 		super(firstName, lastName, mailId, recordId);
 		this.location = location;
 		this.project = project;
 		this.managerId = managerId;
 	}
+
 
 	public String getLocation() {
 		return location;

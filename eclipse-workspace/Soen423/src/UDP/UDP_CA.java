@@ -12,13 +12,10 @@ import Servers.ServerInterface;
 public class UDP_CA implements Runnable {
 
 	private DatagramSocket serverSocket;
-	Registry r;
 	ServerInterface server;
 
 	public UDP_CA(int port) throws Exception {
 
-		r = LocateRegistry.getRegistry(1099);
-		server = (ServerInterface) r.lookup("localhost/CA");
 		serverSocket = new DatagramSocket(port);
 	}
 

@@ -15,7 +15,6 @@ public class HashMapper {
 	}
 
 	public void put(String lastName, ManagerRecord o) {
-
 		char key = lastName.toUpperCase().charAt(0);
 		if (mapper.containsKey(key)) {
 			mapper.get(key).add(o);
@@ -23,12 +22,12 @@ public class HashMapper {
 			ArrayList<Object> al = new ArrayList<Object>();
 			al.add(o);
 			mapper.put(key, al);
-		}
-
+		}		
 	}
 
 	public void put(String lastName, EmployeeRecord o) {
 
+
 		char key = lastName.toUpperCase().charAt(0);
 		if (mapper.containsKey(key)) {
 			mapper.get(key).add(o);
@@ -37,7 +36,7 @@ public class HashMapper {
 			al.add(o);
 			mapper.put(key, al);
 		}
-
+		
 	}
 
 	public int getCount() {
@@ -49,7 +48,6 @@ public class HashMapper {
 	}
 
 	public String edit(String recordId, String fieldName, String newValue) {
-		printAll();
 		for (Character key : mapper.keySet()) {
 			for (int i = 0; i < mapper.get(key).size(); i++) {
 				
@@ -90,4 +88,77 @@ public class HashMapper {
 			}
 		}
 	}
+	public boolean find(String recordId){
+		for (Character key : mapper.keySet()) {
+			for (int i = 0; i < mapper.get(key).size(); i++) {
+				
+				if (mapper.get(key).get(i) instanceof ManagerRecord) {
+					ManagerRecord record = (ManagerRecord) mapper.get(key).get(i);
+					
+					if (record.getRecordId().equals(recordId)) {
+						return true;
+					}
+
+				} else if (mapper.get(key).get(i) instanceof EmployeeRecord) {
+					EmployeeRecord record = (EmployeeRecord) mapper.get(key).get(i);
+
+					if (record.getRecordId().equals(recordId)) {
+						return true;
+
+					} 
+				} 
+			}
+		}
+		return false;		
+	}
+	
+	public String delete(String recordId){
+		for (Character key : mapper.keySet()) {
+			for (int i = 0; i < mapper.get(key).size(); i++) {
+				
+				if (mapper.get(key).get(i) instanceof ManagerRecord) {
+					ManagerRecord record = (ManagerRecord) mapper.get(key).get(i);
+					
+					if (record.getRecordId().equals(recordId)) {
+						mapper.get(key).remove(i);
+						return "This Record was Deleted";
+					}
+
+				} else if (mapper.get(key).get(i) instanceof EmployeeRecord) {
+					EmployeeRecord record = (EmployeeRecord) mapper.get(key).get(i);
+					
+					if (record.getRecordId().equals(recordId)) {
+						mapper.get(key).remove(i);
+						return "This Record was Deleted";
+					} 
+				} 
+			}
+		}
+		return "This Record does not Exists!";
+	}	
+	
+	public Object extract(String recordId){
+		for (Character key : mapper.keySet()) {
+			for (int i = 0; i < mapper.get(key).size(); i++) {
+				
+				if (mapper.get(key).get(i) instanceof ManagerRecord) {
+					ManagerRecord record = (ManagerRecord) mapper.get(key).get(i);
+					
+					if (record.getRecordId().equals(recordId)) {
+						return record;
+					}
+
+				} else if (mapper.get(key).get(i) instanceof EmployeeRecord) {
+					EmployeeRecord record = (EmployeeRecord) mapper.get(key).get(i);
+
+					if (record.getRecordId().equals(recordId)) {
+						return record;
+
+					} 
+				} 
+			}
+		}
+		return "This Record does not Exists!";		
+	}
+	
 }

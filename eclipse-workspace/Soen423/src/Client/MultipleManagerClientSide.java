@@ -18,21 +18,37 @@ public class MultipleManagerClientSide{
 		(new ThreadManager("CA1113","CA")).start();
 		(new ThreadManager("CA1114","CA")).start();
 		(new ThreadManager("CA1115","CA")).start();
+		(new ThreadManager("CA1111","CA")).start();
+		(new ThreadManager("CA1112","CA")).start();
+		(new ThreadManager("CA1113","CA")).start();
+		(new ThreadManager("CA1114","CA")).start();
+		(new ThreadManager("CA1115","CA")).start();
 
 		(new ThreadManager("US1116","US")).start();
 		(new ThreadManager("US1117","US")).start();
 		(new ThreadManager("US1118","US")).start();
 		(new ThreadManager("US1119","US")).start();
 		(new ThreadManager("US1120","US")).start();
-
+		(new ThreadManager("US1116","US")).start();
+		(new ThreadManager("US1117","US")).start();
+		(new ThreadManager("US1118","US")).start();
+		(new ThreadManager("US1119","US")).start();
+		(new ThreadManager("US1120","US")).start();
 		
 		(new ThreadManager("UK1121","UK")).start();
 		(new ThreadManager("UK1122","UK")).start();
 		(new ThreadManager("UK1123","UK")).start();
 		(new ThreadManager("UK1124","UK")).start();
+		(new ThreadManager("UK1125","UK")).start();		
+		(new ThreadManager("UK1121","UK")).start();
+		(new ThreadManager("UK1122","UK")).start();
+		(new ThreadManager("UK1123","UK")).start();
+		(new ThreadManager("UK1124","UK")).start();
 		(new ThreadManager("UK1125","UK")).start();
+
 		
-		Thread.sleep(5000);
+		
+		Thread.sleep(1500);
 		try {
 			(new ThreadManager("CA8888","CA")).getCountFinal();
 			(new ThreadManager("US8888","US")).getCountFinal();
@@ -64,11 +80,11 @@ class ThreadManager extends Thread implements Runnable  {
 	
 	@Override
 	public void run() {		
-		try {			
+		try {	
 			String taskSuccess;						
-			taskSuccess = serverO.createERecord(firstName, lastName, employeeID, mailID, projectId);		
-			serverO.printData(userName, taskSuccess);
-			print(userName, taskSuccess);			
+			taskSuccess=serverO.createMRecord(firstName, lastName, managerId, mailID, project, location);
+			serverO.printData(userName, taskSuccess);			
+			print(userName, taskSuccess);	
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -100,11 +116,10 @@ class ThreadManager extends Thread implements Runnable  {
 	
 
 	public void printAll() throws IOException {
-		serverO.editRecord("", "", "");
 	}
 	
 	
-	private  static void connectToServer(String location) throws RemoteException {
+	private synchronized void connectToServer(String location) throws RemoteException {
 		
 		try {
 			Registry r = LocateRegistry.getRegistry(1099);
