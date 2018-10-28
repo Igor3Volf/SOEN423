@@ -25,4 +25,28 @@ public final class Project implements org.omg.CORBA.portable.IDLEntity
     projectName = _projectName;
   } // ctor
 
+	public String getProjectId() {
+		return projectId;
+	}
+
+	public String getClientName() {
+		return clientName;
+	}
+
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public void setProjectId(String id) {
+		projectId = id;
+	}
+
+	public void setClientName(String cName) {
+		clientName = cName;
+	}
+
+	public void setProjectName(String pName) {
+		projectName = pName;
+	}
+
 } // class Project

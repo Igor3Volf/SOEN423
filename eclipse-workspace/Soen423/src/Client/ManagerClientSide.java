@@ -3,27 +3,37 @@ package Client;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.rmi.Naming;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import Models.Project;
+import org.omg.CORBA.ORB;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+
+import CorbaModule.ManagerInterface;
+import CorbaModule.ManagerInterfaceHelper;
+import CorbaModule.Project;
 import Repository.LogWriter;
-import Servers.ServerInterface;
 
 public class ManagerClientSide {
 
-	private static ServerInterface serverO;
+	static ManagerInterface serverO;
+	static NamingContextExt ncRef ;
 	private static LogWriter log;
 	private final static String PATH = "C:\\Users\\Igor3Volf\\git\\SOEN423\\eclipse-workspace\\Soen423\\Client_logs\\";		//descktop
 	//private final static String PATH = "C:\\Users\\igor3\\eclipse-workspace\\Soen423\\src\\Client_logs\\"; 				//laptop
-
-
 	public static void main(String[] args) throws Exception {
+		// create and initialize the ORB
+        ORB orb = ORB.init(args, null);
 
+        // get the root naming context
+        org.omg.CORBA.Object objRef = 
+            orb.resolve_initial_references("NameService");
+        // Use NamingContextExt instead of NamingContext. This is 
+        // part of the Interoperable naming Service.  
+        ncRef = NamingContextExtHelper.narrow(objRef);     
+        
 		Scanner keyboard = new Scanner(System.in);
 		login(keyboard);
 	}
@@ -34,11 +44,8 @@ public class ManagerClientSide {
 		if(validUserId(input)) {
 			log = new LogWriter(input + "_logs.txt", PATH);
 			String location = input.substring(0, 2);
-			try {
-				connectToServer(location);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
+			connectToServer(location);
+			
 			options(keyboard, input);
 		}
 		else { login(keyboard);
@@ -51,6 +58,8 @@ public class ManagerClientSide {
 		System.out.println("2. Create Employee Record.");
 		System.out.println("3. Get Record Count.");
 		System.out.println("4. Edit Record");
+		System.out.println("5. Transfer Record");
+
 		System.out.println("0. Exit");
 		int choice = keyboard.nextInt();
 		if (choice > 0) {
@@ -67,6 +76,9 @@ public class ManagerClientSide {
 			case 4:
 				option4(keyboard, userName);
 				break;
+			case 5:
+				option5(keyboard, userName);
+				break;
 			case 0:
 				System.exit(0);
 				break;
@@ -76,35 +88,24 @@ public class ManagerClientSide {
 			}
 		}
 	}
-	
-	private static boolean validEmpId(String in) {
-		if(in.length()==5) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
-	
 	private static void option1(Scanner k, String userName) {
-		Project p = new Project();
+		CorbaModule.Project p = new Project();
 		String firstName, lastName, managerId, mailId, location;
 
 		System.out.println();
 		System.out.println("Enter First Name");
 		firstName = k.next();
-		if(isEmpty(firstName)||hasNum(firstName)) {
+		if(isEmpty(firstName)||!validName(firstName)) {
 			option1(k, userName);
 		}
 
 		System.out.println("Enter Last Name");
 		lastName = k.next();
-		if(isEmpty(lastName)||hasNum(lastName)) {
+		if(isEmpty(lastName)||!validName(lastName)) {
 			option1(k, userName);
 		}
 
-		System.out.println("Enter Manager ID");
+		System.out.println("Enter Manager ID [CA|UK|US]####");
 		managerId = k.next();
 		if(isEmpty(managerId)||!validUserId(managerId)||!allowedLocation(userName,managerId)) {
 			option1(k, userName);
@@ -112,11 +113,11 @@ public class ManagerClientSide {
 
 		System.out.println("Enter Mail ID");
 		mailId = k.next();
-		if(isEmpty(mailId)) {
+		if(isEmpty(mailId)||!validEmail(mailId)) {
 			option1(k, userName);
 		}
 
-		System.out.println("Enter Project ID");
+		System.out.println("Enter Project ID P#####");
 		String projectId= k.next();		
 		if(isEmpty(projectId)||!validProjectId(projectId)) {
 			option1(k, userName);
@@ -125,7 +126,7 @@ public class ManagerClientSide {
 		
 		System.out.println("Enter Name of the Client");
 		String clientName= k.next();		
-		if(isEmpty(clientName)||hasNum(clientName)) {
+		if(isEmpty(clientName)||!validName(clientName)) {
 			option1(k, userName);
 		}
 		p.setClientName(clientName);
@@ -141,15 +142,9 @@ public class ManagerClientSide {
 		location = k.next();
 		if(isEmpty(location)||!allowedLocation(userName,location)) {
 			option1(k, userName);
-		}
-		try {
-			String message = serverO.createMRecord(firstName, lastName, managerId, mailId, p, location);
-			serverO.printData(userName, message);
-			log.writeLog(userName, message);
-
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
+		}			
+		String message = serverO.createMRecord(userName,firstName, lastName, managerId, mailId, p, location);
+		log.writeLog(userName, message,location);		 
 		options(k, userName);
 
 	}	
@@ -158,56 +153,45 @@ public class ManagerClientSide {
 
 		System.out.println("Enter First Name");
 		firstName = k.next();
-		if(isEmpty(firstName)) {
+		if(isEmpty(firstName)||!validName(firstName)) {
 			option2(k, userName);
 		}
 		
 		System.out.println("Enter Last Name");
 		lastName = k.next();
-		if(isEmpty(lastName)) {
+		if(isEmpty(lastName)||!validName(lastName)) {
 			option2(k, userName);
 		}
-		System.out.println("Enter Employee ID");
+		System.out.println("Enter Employee ID #####");
 		employeeId = k.next();
-		if(isEmpty(employeeId)||!validEmpId(employeeId)||!hasNum(employeeId)) {
+		if(isEmpty(employeeId)||!validEmpId(employeeId)) {
 			option2(k, userName);
 		}
 		System.out.println("Enter Mail ID");
 		mailId = k.next();
-		if(isEmpty(mailId)) {
+		if(isEmpty(mailId)||!validEmail(mailId)) {
 			option2(k, userName);
 		}
-		System.out.println("Enter Project ID");
+		System.out.println("Enter Project ID P#####");
 		projectId = k.next();
 		if(isEmpty(projectId)||!validProjectId(projectId)) {
 			option2(k, userName);
 		}
-		try {
-			String message = serverO.createERecord(firstName, lastName, Integer.parseInt(employeeId), mailId,
-					projectId);
-			serverO.printData(userName, message);
-			log.writeLog(userName, message);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-
+		 
+		String message = serverO.createERecord(userName,firstName, lastName, (short) Integer.parseInt(employeeId), mailId,
+				projectId);
+		log.writeLog(userName, message, userName.substring(0,2).toUpperCase());	
 		options(k, userName);
 
 	}
-
 	private static void option3(Scanner k, String userName) 
 	{
 		String message;
-		try {
-			message = serverO.getRecordCounts();
-		} catch (RemoteException e) {
-			message = "Error: Could not get record count";
-			e.printStackTrace();
-		}
-		log.writeLog(userName, message);
+		System.out.println(userName);
+		message = serverO.getRecordCounts(userName);		
+		log.writeLog(userName, message, userName.substring(0,2).toUpperCase());
 		options(k, userName);
 	}
-
 	private static void option4(Scanner k, String userName) {
 		String recordId, fieldName, newValue;
 		System.out.println();
@@ -232,31 +216,52 @@ public class ManagerClientSide {
 				option4(k,userName);
 			}
 		}
-		try {
-			String message = serverO.editRecord(recordId, fieldName, newValue);
-			serverO.printData(userName, message);
-			log.writeLog(userName, message);
+		
+		String message = serverO.editRecord(userName, recordId, fieldName, newValue);
+		log.writeLog(userName, message,userName.substring(0,2).toUpperCase());
 
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 		options(k, userName);
 	}
-
-	private static void connectToServer(String location) throws RemoteException {
-		try {
-			Registry r = LocateRegistry.getRegistry(1099);
+	private static void option5(Scanner k, String userName) {
+		
+		String recordId, otherServer;
+		System.out.println();
+		System.out.println("Enter Record ID: [MR|ER]#####");
+		recordId = k.next();
+		if(!validRecordId(recordId)) {
+			option4(k, userName);
+		}
+		System.out.println("Enter New Server :");
+		otherServer = k.next();
+		if(isEmpty(otherServer)||!validServer(userName,otherServer)) {
+			option5(k, userName);
+		}			
+		
+		String message = serverO.transferRecord(userName, recordId, otherServer);
+		log.writeLog(userName, message,userName.substring(0,2).toUpperCase());
+		
+		options(k, userName);
+	}
+	
+	private static void connectToServer(String location) {
+	
+		try {	
+	        // resolve the Object Reference in Naming
+	        
+	        
 			if (location.equals("CA")) {
-				serverO = (ServerInterface) r.lookup("localhost/CA");
+				String name = "Canada";
+		        serverO = ManagerInterfaceHelper.narrow(ncRef.resolve_str(name));
 			} else if (location.equals("US")) {
-				serverO = (ServerInterface) r.lookup("localhost/US");
-
+				String name = "America";
+		        serverO = ManagerInterfaceHelper.narrow(ncRef.resolve_str(name));		       
 			} else if (location.equals("UK")) {
-				serverO = (ServerInterface) r.lookup("localhost/UK");
-			} else {
-				System.out.println("Wrong Location.");
-				System.exit(0);
+				String name = "England";
+		        serverO = ManagerInterfaceHelper.narrow(ncRef.resolve_str(name));		       
+		        } else {
+					System.out.println("Wrong Location.");
+					System.exit(0);
 			}
 
 		} // end try
@@ -265,8 +270,6 @@ public class ManagerClientSide {
 		}
 
 	}
-	
-	
 	private static boolean validUserId(String in) {
 		if(in.matches("(^CA(\\d{4})$)|(^UK(\\d{4})$)|(^US(\\d{4})$)")) 
 			return true;
@@ -274,11 +277,15 @@ public class ManagerClientSide {
 		else 
 			return false;
 	}	
-	private static boolean hasNum(String in) {
-		if(in.matches(".*\\d+.*")) 
-			return true;
-		else 
+	private static boolean validName(String in) {
+		Pattern digit = Pattern.compile("[0-9]");
+	    Pattern special = Pattern.compile ("[!@#$%&*()_+=|<>?{}\\[\\]~-]");	     
+	    Matcher hasDigit = digit.matcher(in);
+        Matcher hasSpecial = special.matcher(in);		
+        if(hasDigit.find()||hasSpecial.find()) 
 			return false;
+		else 
+			return true;
 	}
 	private static boolean isEmpty(String in) {
 		if(in.isEmpty()||in.length()<2) 
@@ -307,5 +314,25 @@ public class ManagerClientSide {
 		
 		else 
 			return false;
+	}
+	private static boolean validEmpId(String in) {
+		Pattern p = Pattern.compile("^[0-9]{5}$");
+	    Matcher m = p.matcher(in);
+		return m.find();
+	}
+	private static boolean validEmail(String emailStr) {
+		
+		//Took from https://stackoverflow.com/questions/8204680/java-regex-email 10/26/2018 		
+		Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = VALID_EMAIL_ADDRESS_REGEX .matcher(emailStr);
+        return matcher.find();
+	}
+	private static boolean validServer(String user, String server){
+		Pattern s = Pattern.compile("(CA)|(US)|(UK)");
+		Matcher matcher = s.matcher(server);
+		if(matcher.find()==false || server.equals(user.substring(0,2).toUpperCase()))
+			return false;
+		else
+			return true;
 	}
 }

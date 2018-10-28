@@ -1,15 +1,12 @@
 package Servers;
 
 import CorbaModule.ManagerInterfacePOA;
-import CorbaModule.ProjectHelper;
 import Models.EmployeeRecord;
 import Models.ManagerRecord;
-import Models.Project;
+import CorbaModule.Project;
 import Repository.HashMapper;
+import Repository.IdGenerator;
 import Repository.LogWriter;
-import UDP.UDP_CA;
-import UDP.UDP_UK;
-import UDP.UDP_US;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -21,9 +18,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.rmi.*;
-import java.rmi.server.*;
-import java.util.ArrayList;
+import java.net.UnknownHostException;
+import java.util.concurrent.Semaphore;
 
 import org.omg.CORBA.ORB;
 
@@ -33,10 +29,21 @@ class UDP_Server extends Thread implements Runnable {
 	private CenterServer server;
 	private String location;
 
-	public UDP_Server(int port, CenterServer server, String l) throws Exception {
+	public UDP_Server(int port, CenterServer server, String location)
+			throws Exception {
 		this.server = server;
 		serverSocket = new DatagramSocket(port);
-		location = l;
+		if (location.equals("Canadian")) {
+			this.location = "CA";
+
+		} else if (location.equals("American")) {
+			this.location = "US";
+
+		} else if (location.equals("English")) {
+			this.location = "UK";
+		} else {
+			this.location = "Uknown";
+		}
 	}
 
 	@Override
@@ -51,18 +58,17 @@ class UDP_Server extends Thread implements Runnable {
 						receiveData.length);
 				serverSocket.receive(receivePacket);
 				receiveData = receivePacket.getData();
-				ByteArrayInputStream in = new ByteArrayInputStream(receiveData);
-				ObjectInputStream is = new ObjectInputStream(in);
-				Object o = is.readObject();
+				ObjectInputStream iStream = new ObjectInputStream(
+						new ByteArrayInputStream(receiveData));
+				Object o = iStream.readObject();
+
 				if (o instanceof String) {
-					message = new String(receiveData, 0, receiveData.length);
-					System.out.println(message);
+					message = o.toString();
 
 					String words[] = message.split(" ");
 					if (words[0].equals("Count")) {
 						message = getCount();
-						sendData = (location.substring(2).toUpperCase() + " " + message)
-								.getBytes();
+						sendData = (location + " " + message).getBytes();
 
 					} else if (words[0].equals("Check")) {
 						message = checkRecord(words[1]);
@@ -72,9 +78,7 @@ class UDP_Server extends Thread implements Runnable {
 						sendData = (message).getBytes();
 
 					}
-				}
-
-				else if (o instanceof EmployeeRecord) {
+				} else if (o instanceof EmployeeRecord) {
 					message = passEmp((EmployeeRecord) o);
 					sendData = message.getBytes();
 
@@ -94,15 +98,15 @@ class UDP_Server extends Thread implements Runnable {
 		}
 	}
 
-	private synchronized String passEmp(EmployeeRecord e) {
+	private  String passEmp(EmployeeRecord e) {
 		return server.addToMap(e);
 	}
 
-	private synchronized String passMan(ManagerRecord m) {
+	private  String passMan(ManagerRecord m) {
 		return server.addToMap(m);
 	}
 
-	private synchronized String checkRecord(String recordId) {
+	private  String checkRecord(String recordId) {
 		if (server.checkIfExist(recordId)) {
 			return "This Records Exists!";
 		} else {
@@ -110,29 +114,28 @@ class UDP_Server extends Thread implements Runnable {
 		}
 	}
 
-	private synchronized String getCount() {
+	private  String getCount() {
 		return server.getMapCount();
 	}
 
 }
 
-public class CenterServer extends ManagerInterfacePOA implements Runnable {
+public class CenterServer extends ManagerInterfacePOA {
 	private HashMapper map;
 	private LogWriter logs;
-	private static int count = 10000;
 	private String location;
-	private static String path;
-	private static String fileName;
+	private String path;
+	private String fileName;
 	private ORB orb;
-
-	public CenterServer(String location, String path, int udpPort)
-			throws RemoteException, IOException {
+	private static Semaphore semaphore = new Semaphore(1);
+	
+	public CenterServer(String location, String path, int udpPort) throws IOException {
 		this.fileName = location + "_logs.txt";
 		this.path = path;
 		map = new HashMapper();
 		logs = new LogWriter(fileName, path);
 		this.location = location;
-		
+
 		try {
 			(new UDP_Server(udpPort, this, location)).start();
 		} catch (Exception e) {
@@ -145,64 +148,102 @@ public class CenterServer extends ManagerInterfacePOA implements Runnable {
 	public void setORB(ORB orb_val) {
 		orb = orb_val;
 	}
-
-	public void run() {
-
+	@SuppressWarnings("resource")
+	private  int getUniqueId(){		
+		
+		byte[] receiveData = new byte[1024];
+		byte[] sendData = new byte[1024];
+		String id = "0";
+		DatagramSocket clientSocket = null;
+		try {
+			clientSocket = new DatagramSocket();
+			InetAddress IPAddress = InetAddress.getByName("localhost");
+			// Requesting US
+			DatagramPacket sendPacket = new DatagramPacket(sendData,sendData.length, IPAddress, 5555);
+			clientSocket.send(sendPacket);
+			DatagramPacket receivePacketUS = new DatagramPacket(receiveData, receiveData.length);
+			clientSocket.receive(receivePacketUS);
+			
+			id = new String(receivePacketUS.getData(),
+					receivePacketUS.getOffset(),
+					receivePacketUS.getLength());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		return Integer.parseInt(id);
+		
 	}
-
 	@Override
-	public synchronized String createMRecord(String managerId,
+	public  String createMRecord(String managerId,
 			String firstName, String lastName, String employeeID,
 			String mailID, CorbaModule.Project project, String location) {
 		String message;
-		count++;
-		String recordId = "MR" + String.valueOf(count);
-		Project p = new Project(project.projectId, project.clientName,
-				project.projectName);
-		ManagerRecord managerRec = new ManagerRecord(firstName, lastName,
-				employeeID, mailID, recordId, location, p);
-
-		int check = map.getCount();
-
-		map.put(lastName, managerRec);
-		if (map.getCount() > check) {
-			message = "The Manager Record is successfully added!";
-		} else {
-			message = "The Manager Recod was not added";
+		synchronized(CenterServer.class){
+			int uId=getUniqueId();
+			String recordId = "MR" + String.valueOf(uId);
+			Project p = new Project(project.projectId, project.clientName,
+					project.projectName);
+			ManagerRecord managerRec = new ManagerRecord(firstName, lastName,
+					employeeID, mailID, recordId, location, p);
+	
+			int check = map.getCount();
+			map.put(lastName, managerRec);
+			if (map.getCount() > check) {
+				message = "The Manager Record is successfully added!";
+			} else {
+				message = "The Manager Recod was not added";
+			}
+			printData(managerId, message, this.location);
+			
+			return message;
 		}
-		printData(managerId, message, location);
-		return message;
+		
 	}
 
 	@Override
-	public synchronized String createERecord(String managerID,
+	public  String createERecord(String managerID,
 			String firstName, String lastName, short employeeID, String mailID,
 			String projectId) {
 		String message;
-		count++;
-		String recordId = "ER" + String.valueOf(count);
+		synchronized(CenterServer.class){
+		int uId=getUniqueId();
+		String recordId = "ER" + String.valueOf(uId);
 		EmployeeRecord empRec = new EmployeeRecord(firstName, lastName,
 				employeeID, mailID, recordId, projectId);
 		int check = map.getCount();
 		map.put(lastName, empRec);
-
 		if (map.getCount() > check) {
 			message = "The Empoyee Record is successfully added!";
+
 		} else {
 			message = "The Empoyee Recod was not added";
 		}
 
-		printData(managerID, message, location);
+		printData(managerID, message, this.location);		
 		return message;
+		}
 	}
 
 	@Override
-	public synchronized String getRecordCounts(String managerID) {
+	public  String getRecordCounts(String managerID) {
 		String caCount = "", usCount = "", ukCount = "";
 
 		String sendM = "Count";
 		byte[] sendData = new byte[1024];
 		sendData = sendM.getBytes();
+
+		try {
+			ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+			ObjectOutput oo = new ObjectOutputStream(bStream);
+			oo.writeObject(sendM);
+			sendData = bStream.toByteArray();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		byte[] receiveData = new byte[1024];
 
 		if (location.equals("Canadian")) {
@@ -319,28 +360,32 @@ public class CenterServer extends ManagerInterfacePOA implements Runnable {
 		} else {
 			return "There is nothing yet.";
 		}
-		map.printAll();
 		String totalCount = "Total Records on Servers: " + caCount + " "
 				+ usCount + " " + ukCount;
-		printData(managerID, totalCount, location);
+		printData(managerID, totalCount, this.location);
+		map.printAll();
+		System.out.println("-------------"+this.location+"---------------");
+
 		return totalCount;
 	}
 
 	@Override
-	public synchronized String editRecord(String managerID, String recordID,
+	public  String editRecord(String managerID, String recordID,
 			String fieldName, String newValue) {
 		String message = map.edit(recordID, fieldName, newValue);
-		printData(managerID, message, location);
+		printData(managerID, message, this.location);
 		return message;
+		
 	}
 
-	private void printData(String managerID, String task, String location) {
-		synchronized (logs) {
-			logs.writeLog(managerID, task, location);
-		}
+	private  void printData(String managerID, String task,
+			String location) {
+
+		logs.writeLog(managerID, task, this.location);
+
 	}
 
-	public synchronized String getMapCount() {
+	public  String getMapCount() {
 		if (map.getCount() < 1)
 			return "Map is empty";
 		else
@@ -349,8 +394,9 @@ public class CenterServer extends ManagerInterfacePOA implements Runnable {
 	}
 
 	@Override
-	public String transferRecord(String managerID, String recordID,
-			String remoteCenterServerName) {
+	public String transferRecord(String managerID,
+			String recordID, String remoteCenterServerName) {
+		
 		String message = "";
 		int port;
 		switch (remoteCenterServerName) {
@@ -367,14 +413,21 @@ public class CenterServer extends ManagerInterfacePOA implements Runnable {
 			port = 0;
 			break;
 		}
-
 		if (checkIfExist(recordID)) {
-			message = "The Record exist in ";
-			printData(managerID, message, location);
+			message = "The Record exist in " + this.location + " server.";
+			printData(managerID, message, this.location);
 
-			String sendM = "Check";
+			String sendM = "Check " + recordID;
 			byte[] sendData = new byte[1024];
-			sendData = sendM.getBytes();
+			try {
+				ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+				ObjectOutput oo = new ObjectOutputStream(bStream);
+				oo.writeObject(sendM);
+				sendData = bStream.toByteArray();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			byte[] receiveData = new byte[1024];
 			try {
 				DatagramSocket clientSocket = new DatagramSocket();
@@ -392,46 +445,50 @@ public class CenterServer extends ManagerInterfacePOA implements Runnable {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			if(message.equals("This Records does not Exists!")){
-				message =recordID+ " does not Exist in "+remoteCenterServerName+ " server";
+			if (message.equals("This Records does not Exists!")) {
+				message = recordID + " does not Exist in "
+						+ remoteCenterServerName + " server";
 				printData(managerID, message, location);
-				
-				
 				try {
 					ByteArrayOutputStream bStream = new ByteArrayOutputStream();
-					ObjectOutput oo = new ObjectOutputStream(bStream); 
+					ObjectOutput oo = new ObjectOutputStream(bStream);
 					oo.writeObject(map.extract(recordID));
-					oo.close();					
+					oo.close();
 					sendData = bStream.toByteArray();
-					
+
 					DatagramSocket clientSocket = new DatagramSocket();
 					InetAddress IPAddress = InetAddress.getByName("localhost");
 					DatagramPacket sendPacket = new DatagramPacket(sendData,
 							sendData.length, IPAddress, port);
 					clientSocket.send(sendPacket);
-					DatagramPacket receivePacket = new DatagramPacket(receiveData,
-							receiveData.length);
+					DatagramPacket receivePacket = new DatagramPacket(
+							receiveData, receiveData.length);
 					clientSocket.receive(receivePacket);
 					message = new String(receivePacket.getData(),
-							receivePacket.getOffset(), receivePacket.getLength());
+							receivePacket.getOffset(),
+							receivePacket.getLength());
 				} catch (SocketException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
-				
-			}else{
-				message =recordID+ " Already Exists in "+remoteCenterServerName+ " server";
+				map.delete(recordID);
+
+			} else {
+				message = recordID + " Already Exists in "
+						+ remoteCenterServerName + " server";
 				printData(managerID, message, location);
 			}
 
-		}else{
-			message="This Record does not exist";
-			printData(managerID,message,location);
+		} else {
+			message = "This Record does not exist " + this.location
+					+ " server.";
 		}
+		printData(managerID, message, this.location);
+
 		return message;
-	}
+		}
+	
 
 	public boolean checkIfExist(String recordId) {
 		return map.find(recordId);
@@ -440,11 +497,11 @@ public class CenterServer extends ManagerInterfacePOA implements Runnable {
 	public String addToMap(EmployeeRecord e) {
 		map.put(e.getLastName(), e);
 		return "Employee was Successfully Transfered.";
+		
 	}
 
 	public String addToMap(ManagerRecord m) {
 		map.put(m.getLastName(), m);
-		return "Manager was Successfully Transfered.";
-
+		return "Manager was Successfully Transfered.";	
 	}
 }

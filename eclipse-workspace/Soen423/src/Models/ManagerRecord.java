@@ -2,7 +2,7 @@ package Models;
 
 import java.io.Serializable;
 
-import Models.Project;
+import CorbaModule.Project;
 
 public class ManagerRecord extends Record implements Serializable {
 

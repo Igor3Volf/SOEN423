@@ -13,8 +13,8 @@ public class LogWriter {
 	private String fileName;
 	private String path = "";
     
-	public LogWriter(String fileName, String path) throws IOException {
-
+	public LogWriter(String fileName, String path) throws IOException 
+	{
 		this.fileName = fileName;
 		this.path = path;
 		fileWriter = new FileWriter(new File(path, fileName), true);
@@ -22,7 +22,7 @@ public class LogWriter {
 		in = new PrintWriter(bufferWriter);
 
 	}	
-	public synchronized void writeLog(String mId, String task, String location) {		
+	public void writeLog(String mId, String task, String location) {		
 			File file= new File(path, fileName);
 			try {
 				fileWriter = new FileWriter(file, true);
@@ -41,7 +41,6 @@ public class LogWriter {
 			} catch (IOException io) {
 				io.printStackTrace();
 			}		
-		
 	}
 
 }
