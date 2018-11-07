@@ -2,8 +2,6 @@ package Models;
 
 import java.io.Serializable;
 
-import CorbaModule.Project;
-
 public class ManagerRecord extends Record implements Serializable {
 
 	private String location;

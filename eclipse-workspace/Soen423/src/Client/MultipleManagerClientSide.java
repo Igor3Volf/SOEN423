@@ -1,100 +1,46 @@
 package Client;
 
 import java.io.IOException;
+import java.net.URL;
 
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.ORBPackage.InvalidName;
-import org.omg.CosNaming.NamingContextExt;
-import org.omg.CosNaming.NamingContextExtHelper;
+import javax.xml.namespace.QName;
+import javax.xml.ws.Service;
 
-import CorbaModule.ManagerInterface;
-import CorbaModule.ManagerInterfaceHelper;
-import CorbaModule.Project;
+import Models.Project;
 import Repository.LogWriter;
+import Servers.CenterServerInterface;
 
 public class MultipleManagerClientSide {
 
 	public static void main(String[] args) throws InterruptedException,
-			IOException, InvalidName {
+			IOException {
+	
 
-		// create and initialize the ORB
-		ORB orb = ORB.init(args, null);
+		(new ThreadManager("CA1111", "CA")).start();
+		(new ThreadManager("CA1112", "CA")).start();
+		(new ThreadManager("CA1113", "CA")).start();
+		(new ThreadManager("CA1114", "CA")).start();
+		(new ThreadManager("CA1115", "CA")).start();
 
-		// get the root naming context
-		org.omg.CORBA.Object objRef = orb
-				.resolve_initial_references("NameService");
-		// Use NamingContextExt instead of NamingContext. This is
-		// part of the Interoperable naming Service.
-		NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
+		(new ThreadManager("US1116", "US")).start();
+		(new ThreadManager("US1117", "US")).start();
+		(new ThreadManager("US1118", "US")).start();
+		(new ThreadManager("US1119", "US")).start();
+		(new ThreadManager("US1120", "US")).start();		
 
-		(new ThreadManager("CA1111", "CA", ncRef)).start();
-		(new ThreadManager("CA1112", "CA", ncRef)).start();
-		(new ThreadManager("CA1113", "CA", ncRef)).start();
-		(new ThreadManager("CA1114", "CA", ncRef)).start();
-		(new ThreadManager("CA1115", "CA", ncRef)).start();
-		(new ThreadManager("CA1111", "CA", ncRef)).start();
-		(new ThreadManager("CA1112", "CA", ncRef)).start();
-		(new ThreadManager("CA1113", "CA", ncRef)).start();
-		(new ThreadManager("CA1114", "CA", ncRef)).start();
-		(new ThreadManager("CA1115", "CA", ncRef)).start();
-		(new ThreadManager("CA1111", "CA", ncRef)).start();
-		(new ThreadManager("CA1112", "CA", ncRef)).start();
-		(new ThreadManager("CA1113", "CA", ncRef)).start();
-		(new ThreadManager("CA1114", "CA", ncRef)).start();
-		(new ThreadManager("CA1115", "CA", ncRef)).start();
-		(new ThreadManager("CA1111", "CA", ncRef)).start();
-		(new ThreadManager("CA1112", "CA", ncRef)).start();
-		(new ThreadManager("CA1113", "CA", ncRef)).start();
-		(new ThreadManager("CA1114", "CA", ncRef)).start();
-		(new ThreadManager("CA1115", "CA", ncRef)).start();
 
-		(new ThreadManager("US1116", "US", ncRef)).start();
-		(new ThreadManager("US1117", "US", ncRef)).start();
-		(new ThreadManager("US1118", "US", ncRef)).start();
-		(new ThreadManager("US1119", "US", ncRef)).start();
-		(new ThreadManager("US1120", "US", ncRef)).start();
-		(new ThreadManager("US1116", "US", ncRef)).start();
-		(new ThreadManager("US1117", "US", ncRef)).start();
-		(new ThreadManager("US1118", "US", ncRef)).start();
-		(new ThreadManager("US1119", "US", ncRef)).start();
-		(new ThreadManager("US1120", "US", ncRef)).start();
-		(new ThreadManager("US1116", "US", ncRef)).start();
-		(new ThreadManager("US1117", "US", ncRef)).start();
-		(new ThreadManager("US1118", "US", ncRef)).start();
-		(new ThreadManager("US1119", "US", ncRef)).start();
-		(new ThreadManager("US1120", "US", ncRef)).start();
-		(new ThreadManager("US1116", "US", ncRef)).start();
-		(new ThreadManager("US1117", "US", ncRef)).start();
-		(new ThreadManager("US1118", "US", ncRef)).start();
-		(new ThreadManager("US1119", "US", ncRef)).start();
-		(new ThreadManager("US1120", "US", ncRef)).start();
+		(new ThreadManager("UK1121", "UK")).start();
+		(new ThreadManager("UK1122", "UK")).start();
+		(new ThreadManager("UK1123", "UK")).start();
+		(new ThreadManager("UK1124", "UK")).start();
+		(new ThreadManager("UK1125", "UK")).start();	
 
-		(new ThreadManager("UK1121", "UK", ncRef)).start();
-		(new ThreadManager("UK1122", "UK", ncRef)).start();
-		(new ThreadManager("UK1123", "UK", ncRef)).start();
-		(new ThreadManager("UK1124", "UK", ncRef)).start();
-		(new ThreadManager("UK1125", "UK", ncRef)).start();
-		(new ThreadManager("UK1121", "UK", ncRef)).start();
-		(new ThreadManager("UK1122", "UK", ncRef)).start();
-		(new ThreadManager("UK1123", "UK", ncRef)).start();
-		(new ThreadManager("UK1124", "UK", ncRef)).start();
-		(new ThreadManager("UK1125", "UK", ncRef)).start();
-		(new ThreadManager("UK1121", "UK", ncRef)).start();
-		(new ThreadManager("UK1122", "UK", ncRef)).start();
-		(new ThreadManager("UK1123", "UK", ncRef)).start();
-		(new ThreadManager("UK1124", "UK", ncRef)).start();
-		(new ThreadManager("UK1125", "UK", ncRef)).start();
-		(new ThreadManager("UK1121", "UK", ncRef)).start();
-		(new ThreadManager("UK1122", "UK", ncRef)).start();
-		(new ThreadManager("UK1123", "UK", ncRef)).start();
-		(new ThreadManager("UK1124", "UK", ncRef)).start();
-		(new ThreadManager("UK1125", "UK", ncRef)).start();
 
 		Thread.sleep(1500);
 
-		(new ThreadManager("CA8888", "CA", ncRef)).getCountFinal();		
-		(new ThreadManager("US8888", "US", ncRef)).getCountFinal();
-		(new ThreadManager("UK8888", "UK", ncRef)).getCountFinal();
+		(new ThreadManager("CA8888", "CA")).getCountFinal();		
+		(new ThreadManager("US8888", "US")).getCountFinal();
+		(new ThreadManager("UK8888", "UK")).getCountFinal();
 
 	}
 
@@ -102,8 +48,7 @@ public class MultipleManagerClientSide {
 
 class ThreadManager extends Thread implements Runnable {
 
-	static ManagerInterface serverO;
-	static NamingContextExt ncRef;
+	static CenterServerInterface serverO;
 	private static LogWriter log;
 	// private final static String PATH =
 	// "C:\\Users\\igor3\\eclipse-workspace\\Soen423\\src\\Client_logs\\";
@@ -132,10 +77,9 @@ class ThreadManager extends Thread implements Runnable {
 		}
 	}
 
-	ThreadManager(String userName, String loc, NamingContextExt ncRef)
+	ThreadManager(String userName, String loc)
 			throws IOException {
 
-		this.ncRef = ncRef;
 		this.userName = userName;
 		this.managerId = userName;
 		this.location = loc;
@@ -155,24 +99,35 @@ class ThreadManager extends Thread implements Runnable {
 		print(userName, message);
 	}
 
-	private synchronized void connectToServer(String location) {
+	private void connectToServer(String location) {
 
 		try {
-			// resolve the Object Reference in Naming
-
 			if (location.equals("CA")) {
 				String name = "Canada";
-				serverO = ManagerInterfaceHelper
-						.narrow(ncRef.resolve_str(name));
+				URL url = new URL("http://localhost:8080/CenterServer/" + name
+						+ "?wsdl");
+				QName qName = new QName("http://Servers/",
+						"CenterServerService");
+				Service service = Service.create(url, qName);
+				serverO = service.getPort(CenterServerInterface.class);
+
 			} else if (location.equals("US")) {
 				String name = "America";
-				serverO = ManagerInterfaceHelper
-						.narrow(ncRef.resolve_str(name));
+				URL url = new URL("http://localhost:8080/CenterServer/" + name
+						+ "?wsdl");
+				QName qName = new QName("http://Servers/",
+						"CenterServerService");
+				Service service = Service.create(url, qName);
+				serverO = service.getPort(CenterServerInterface.class);				
 
 			} else if (location.equals("UK")) {
 				String name = "England";
-				serverO = ManagerInterfaceHelper
-						.narrow(ncRef.resolve_str(name));				
+				URL url = new URL("http://localhost:8080/CenterServer/" + name
+						+ "?wsdl");
+				QName qName = new QName("http://Servers/",
+						"CenterServerService");
+				Service service = Service.create(url, qName);
+				serverO = service.getPort(CenterServerInterface.class);
 			} else {
 				System.out.println("Wrong Location.");
 				System.exit(0);

@@ -32,7 +32,7 @@ public class LogWriter {
 					String f = "|%-15s|%-45s|%-30s|%-10s|\n";
 					in.format(f, mId, task, d.toString(), location);
 					in.println();
-					//System.out.print(String.format(f, mId, task, d.toString()));
+					System.out.print(String.format(f, mId, task, d.toString(),location));
 					in.flush();
 					fileWriter.close();
 					bufferWriter.close();

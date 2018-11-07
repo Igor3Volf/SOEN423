@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class EmployeeRecord extends Record implements Serializable {
 	private int employeeId;
 	private String projectId;
-
+	
 	public EmployeeRecord(String firstName, String lastName, String mailId, String recordId) {
 		super(firstName, lastName, mailId, recordId);
 	}

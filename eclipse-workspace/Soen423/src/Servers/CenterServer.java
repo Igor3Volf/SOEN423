@@ -1,11 +1,8 @@
 package Servers;
-
-import CorbaModule.ManagerInterfacePOA;
 import Models.EmployeeRecord;
 import Models.ManagerRecord;
-import CorbaModule.Project;
+import Models.Project;
 import Repository.HashMapper;
-import Repository.IdGenerator;
 import Repository.LogWriter;
 
 import java.io.ByteArrayInputStream;
@@ -18,10 +15,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.concurrent.Semaphore;
 
-import org.omg.CORBA.ORB;
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
+import javax.jws.soap.SOAPBinding.Style;
+
 
 class UDP_Server extends Thread implements Runnable {
 
@@ -44,6 +43,7 @@ class UDP_Server extends Thread implements Runnable {
 		} else {
 			this.location = "Uknown";
 		}
+		
 	}
 
 	@Override
@@ -120,14 +120,14 @@ class UDP_Server extends Thread implements Runnable {
 
 }
 
-public class CenterServer extends ManagerInterfacePOA {
+@WebService(endpointInterface="Servers.CenterServerInterface")
+@SOAPBinding(style=Style.RPC)
+public class CenterServer implements CenterServerInterface {
 	private HashMapper map;
 	private LogWriter logs;
 	private String location;
 	private String path;
 	private String fileName;
-	private ORB orb;
-	private static Semaphore semaphore = new Semaphore(1);
 	
 	public CenterServer(String location, String path, int udpPort) throws IOException {
 		this.fileName = location + "_logs.txt";
@@ -142,12 +142,10 @@ public class CenterServer extends ManagerInterfacePOA {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 
 	}
-
-	public void setORB(ORB orb_val) {
-		orb = orb_val;
-	}
+	
 	@SuppressWarnings("resource")
 	private  int getUniqueId(){		
 		
@@ -175,19 +173,16 @@ public class CenterServer extends ManagerInterfacePOA {
 		
 		return Integer.parseInt(id);
 		
-	}
-	@Override
+	}	
 	public  String createMRecord(String managerId,
 			String firstName, String lastName, String employeeID,
-			String mailID, CorbaModule.Project project, String location) {
+			String mailID, Project project, String location) {
 		String message;
 		synchronized(CenterServer.class){
 			int uId=getUniqueId();
-			String recordId = "MR" + String.valueOf(uId);
-			Project p = new Project(project.projectId, project.clientName,
-					project.projectName);
+			String recordId = "MR" + String.valueOf(uId);			
 			ManagerRecord managerRec = new ManagerRecord(firstName, lastName,
-					employeeID, mailID, recordId, location, p);
+					employeeID, mailID, recordId, location, project);
 	
 			int check = map.getCount();
 			map.put(lastName, managerRec);
@@ -202,8 +197,6 @@ public class CenterServer extends ManagerInterfacePOA {
 		}
 		
 	}
-
-	@Override
 	public  String createERecord(String managerID,
 			String firstName, String lastName, short employeeID, String mailID,
 			String projectId) {
@@ -225,9 +218,7 @@ public class CenterServer extends ManagerInterfacePOA {
 		printData(managerID, message, this.location);		
 		return message;
 		}
-	}
-
-	@Override
+	}	
 	public  String getRecordCounts(String managerID) {
 		String caCount = "", usCount = "", ukCount = "";
 
@@ -368,8 +359,6 @@ public class CenterServer extends ManagerInterfacePOA {
 
 		return totalCount;
 	}
-
-	@Override
 	public  String editRecord(String managerID, String recordID,
 			String fieldName, String newValue) {
 		String message = map.edit(recordID, fieldName, newValue);
@@ -391,9 +380,7 @@ public class CenterServer extends ManagerInterfacePOA {
 		else
 			return String.valueOf(map.getCount());
 
-	}
-
-	@Override
+	}	
 	public String transferRecord(String managerID,
 			String recordID, String remoteCenterServerName) {
 		
@@ -477,7 +464,6 @@ public class CenterServer extends ManagerInterfacePOA {
 			} else {
 				message = recordID + " Already Exists in "
 						+ remoteCenterServerName + " server";
-				printData(managerID, message, location);
 			}
 
 		} else {
@@ -490,18 +476,20 @@ public class CenterServer extends ManagerInterfacePOA {
 		}
 	
 
-	public boolean checkIfExist(String recordId) {
+	protected boolean checkIfExist(String recordId) {
 		return map.find(recordId);
 	}
 
-	public String addToMap(EmployeeRecord e) {
+	protected String addToMap(EmployeeRecord e) {
 		map.put(e.getLastName(), e);
 		return "Employee was Successfully Transfered.";
 		
 	}
 
-	public String addToMap(ManagerRecord m) {
+	protected String addToMap(ManagerRecord m) {
 		map.put(m.getLastName(), m);
 		return "Manager was Successfully Transfered.";	
 	}
+	
+	
 }
