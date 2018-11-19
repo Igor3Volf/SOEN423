@@ -1,10 +1,10 @@
-package Repository;
+package repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import Models.EmployeeRecord;
-import Models.ManagerRecord;
+import models.EmployeeRecord;
+import models.ManagerRecord;
 
 public class HashMapper {
 	private HashMap<Character, ArrayList<Object>> mapper;

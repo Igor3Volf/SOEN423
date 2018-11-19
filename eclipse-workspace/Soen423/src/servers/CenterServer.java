@@ -1,10 +1,4 @@
-package Servers;
-import Models.EmployeeRecord;
-import Models.ManagerRecord;
-import Models.Project;
-import Repository.HashMapper;
-import Repository.LogWriter;
-
+package servers;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,11 +9,16 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.concurrent.Semaphore;
 
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
+
+import repository.HashMapper;
+import repository.LogWriter;
+import models.EmployeeRecord;
+import models.ManagerRecord;
+import models.Project;
 
 
 class UDP_Server extends Thread implements Runnable {
@@ -120,8 +119,7 @@ class UDP_Server extends Thread implements Runnable {
 
 }
 
-@WebService(endpointInterface="Servers.CenterServerInterface")
-@SOAPBinding(style=Style.RPC)
+
 public class CenterServer implements CenterServerInterface {
 	private HashMapper map;
 	private LogWriter logs;
@@ -156,7 +154,6 @@ public class CenterServer implements CenterServerInterface {
 		try {
 			clientSocket = new DatagramSocket();
 			InetAddress IPAddress = InetAddress.getByName("localhost");
-			// Requesting US
 			DatagramPacket sendPacket = new DatagramPacket(sendData,sendData.length, IPAddress, 5555);
 			clientSocket.send(sendPacket);
 			DatagramPacket receivePacketUS = new DatagramPacket(receiveData, receiveData.length);
@@ -198,7 +195,7 @@ public class CenterServer implements CenterServerInterface {
 		
 	}
 	public  String createERecord(String managerID,
-			String firstName, String lastName, short employeeID, String mailID,
+			String firstName, String lastName, int employeeID, String mailID,
 			String projectId) {
 		String message;
 		synchronized(CenterServer.class){
@@ -374,13 +371,13 @@ public class CenterServer implements CenterServerInterface {
 
 	}
 
-	public  String getMapCount() {
+	protected  String getMapCount() {
 		if (map.getCount() < 1)
 			return "Map is empty";
 		else
-			return String.valueOf(map.getCount());
-
+			return String.valueOf(map.getCount());		
 	}	
+	
 	public String transferRecord(String managerID,
 			String recordID, String remoteCenterServerName) {
 		

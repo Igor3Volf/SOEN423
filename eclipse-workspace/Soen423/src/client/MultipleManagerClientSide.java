@@ -1,4 +1,4 @@
-package Client;
+package client;
 
 import java.io.IOException;
 import java.net.URL;
@@ -6,9 +6,9 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 
-import Models.Project;
-import Repository.LogWriter;
-import Servers.CenterServerInterface;
+import repository.LogWriter;
+import servers.CenterServerInterface;
+import models.Project;
 
 public class MultipleManagerClientSide {
 

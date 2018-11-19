@@ -1,17 +1,19 @@
-package Client;
+package client;
 
 import java.io.IOException;
 import java.net.URL;
+
 import javax.xml.ws.Service;
+
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.namespace.QName;
 
-import Servers.CenterServerInterface;
-import Models.Project;
-import Repository.LogWriter;
+import repository.LogWriter;
+import servers.CenterServerInterface;
+import models.Project;
 
 public class ManagerClientSide {
 

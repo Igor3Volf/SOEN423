@@ -1,4 +1,4 @@
-package Repository;
+package repository;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -34,6 +34,7 @@ public class IdGenerator extends Thread implements Runnable {
 				try {
 					uniqueIdSocket.receive(receivePacket);
 					sendData = new Integer(id).toString().getBytes();
+					
 					id++;
 					InetAddress address = receivePacket.getAddress();
 					int port = receivePacket.getPort();
