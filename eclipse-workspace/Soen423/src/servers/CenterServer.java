@@ -14,11 +14,11 @@ import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
 
-import repository.HashMapper;
-import repository.LogWriter;
 import models.EmployeeRecord;
 import models.ManagerRecord;
 import models.Project;
+import service.HashMapper;
+import service.LogWriter;
 
 
 class UDP_Server extends Thread implements Runnable {
@@ -144,7 +144,6 @@ public class CenterServer implements CenterServerInterface {
 
 	}
 	
-	@SuppressWarnings("resource")
 	private  int getUniqueId(){		
 		
 		byte[] receiveData = new byte[1024];
@@ -186,7 +185,7 @@ public class CenterServer implements CenterServerInterface {
 			if (map.getCount() > check) {
 				message = "The Manager Record is successfully added!";
 			} else {
-				message = "The Manager Recod was not added";
+				message = "The Manager Recod was not added.";
 			}
 			printData(managerId, message, this.location);
 			
@@ -209,7 +208,7 @@ public class CenterServer implements CenterServerInterface {
 			message = "The Empoyee Record is successfully added!";
 
 		} else {
-			message = "The Empoyee Recod was not added";
+			message = "The Empoyee Recod was not added.";
 		}
 
 		printData(managerID, message, this.location);		
@@ -346,7 +345,7 @@ public class CenterServer implements CenterServerInterface {
 			}
 
 		} else {
-			return "There is nothing yet.";
+			return  "Total Records on Servers: " + 0 + " "+ 0 + " " + 0;
 		}
 		String totalCount = "Total Records on Servers: " + caCount + " "
 				+ usCount + " " + ukCount;
@@ -373,7 +372,7 @@ public class CenterServer implements CenterServerInterface {
 
 	protected  String getMapCount() {
 		if (map.getCount() < 1)
-			return "Map is empty";
+			return "Map is empty.";
 		else
 			return String.valueOf(map.getCount());		
 	}	
@@ -414,6 +413,7 @@ public class CenterServer implements CenterServerInterface {
 			}
 			byte[] receiveData = new byte[1024];
 			try {
+				@SuppressWarnings("resource")
 				DatagramSocket clientSocket = new DatagramSocket();
 				InetAddress IPAddress = InetAddress.getByName("localhost");
 				DatagramPacket sendPacket = new DatagramPacket(sendData,
@@ -440,6 +440,7 @@ public class CenterServer implements CenterServerInterface {
 					oo.close();
 					sendData = bStream.toByteArray();
 
+					@SuppressWarnings("resource")
 					DatagramSocket clientSocket = new DatagramSocket();
 					InetAddress IPAddress = InetAddress.getByName("localhost");
 					DatagramPacket sendPacket = new DatagramPacket(sendData,

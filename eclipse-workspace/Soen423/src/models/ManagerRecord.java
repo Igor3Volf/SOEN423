@@ -48,21 +48,21 @@ public class ManagerRecord extends Record implements Serializable {
 		switch (field) {
 		case "mailId":
 			setMailId(newVal);
-			return "The mail id was edited";
+			return "The mail id was edited.";
 		case "location":
 			setLocation(newVal);
-			return "The Location was edited";
+			return "The location was edited.";
 		case "projectId":
 			project.setProjectId(newVal);
-			return "The project id was edited";
+			return "The project id was edited.";
 		case "clientName":
 			project.setClientName(newVal);
-			return "The client name was edited";
+			return "The client name was edited.";
 		case "projectName":
 			project.setProjectName(newVal);
-			return "The project name was edited";
+			return "The project name was edited.";
 		default:
-			return "This is illigal operation.";
+			return "This is illegal operation.";
 
 		}
 	}

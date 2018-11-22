@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
 
 import javax.xml.namespace.QName;
 
-import repository.LogWriter;
 import servers.CenterServerInterface;
+import service.LogWriter;
 import models.Project;
 
 public class ManagerClientSide {

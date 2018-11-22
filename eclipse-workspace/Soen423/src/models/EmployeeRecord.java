@@ -37,12 +37,12 @@ public class EmployeeRecord extends Record implements Serializable {
 		switch (field) {
 		case "mailId":
 			setMailId(newVal);
-			return "The mail id was edited";
+			return "The mail id was edited.";
 		case "projectId":
 			setProjectId(newVal);
-			return "The project id was edited";
+			return "The project id was edited.";
 		default:
-			return "This is illigal operation.";
+			return "This is illegal operation.";
 
 		}
 	}

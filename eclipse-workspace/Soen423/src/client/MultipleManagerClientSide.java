@@ -6,8 +6,8 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 
-import repository.LogWriter;
 import servers.CenterServerInterface;
+import service.LogWriter;
 import models.Project;
 
 public class MultipleManagerClientSide {

@@ -3,17 +3,17 @@ package models.request;
 public class CreateERecordRequest extends Request{
 	private static final long serialVersionUID = 1L;
 	
-	private String managerId;
+	private String managerID;
 	private String firstName;
 	private String lastName;
 	private int employeeID;
 	private String mailID;
 	private String projectID;
 	
-	public CreateERecordRequest(String managerId, String firstName, String lastName,
+	public CreateERecordRequest(String managerID, String firstName, String lastName,
 			int employeeID, String mailID, String projectID) {
 		super();
-		this.managerId = managerId;
+		this.managerID = managerID;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.employeeID = employeeID;
@@ -21,12 +21,12 @@ public class CreateERecordRequest extends Request{
 		this.projectID = projectID;
 	}
 
-	public String getManagerId() {
-		return managerId;
+	public String getManagerID() {
+		return managerID;
 	}
 
-	public void setManagerId(String managerId) {
-		this.managerId = managerId;
+	public void setManagerID(String managerID) {
+		this.managerID = managerID;
 	}
 
 	public String getFirstName() {
